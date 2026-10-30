@@ -8,9 +8,11 @@ kit/
 ├── AGENTS.md                 Codex가 자동으로 읽는 작업 규칙
 ├── .agents/skills/           Codex 스킬: $plan-draft  $fresh-review  $verify  $handoff
 ├── docs/                     계획·결정·추적·검증·인수인계 템플릿 + 인터뷰 질문지
-├── prompts/                  첫 메시지, 작업 위임 프롬프트 틀 (사람이 복사해서 씀)
+├── prompts/PLAYBOOK.md       Codex 명령 순서 전체 (복사해서 쓰는 프롬프트 모음) ★
+├── prompts/                  kickoff.md(첫 메시지), task.md(작업 위임 틀)
+├── scripts/env-check.sh      사전 체험 1분: 도구·저장소 접근 확인 → 스택 결정
 ├── scripts/bootstrap.sh      과제 루트에 틀 복사 + 첫 커밋
-├── scripts/check.sh          테스트 + /health 한 번에 점검
+├── scripts/check.sh          테스트(pytest/npm/mvn/gradle 자동 감지) + /health 점검
 ├── scaffold/python-fastapi/  최소 웹앱 (FastAPI)
 ├── scaffold/node-http/       최소 웹앱 (Node 내장 http, 의존성 0)
 └── CHECKLIST.md              당일 시간표·서술형 답변 틀·금지 목록 (사람용)
@@ -21,17 +23,30 @@ kit/
 ## 1. 빠른 시작
 
 ```bash
-# 과제 환경에서
-git clone https://github.com/<아이디>/kit.git ~/kit
+# 사전 체험 (15분, 1회)
+git clone https://github.com/<아이디>/kit.git ~/kit    # 루트 바깥(~)에 받는다
+bash ~/kit/scripts/env-check.sh                       # 도구·저장소 접근 → 스택 결정
+
+# 본 과제
 cd ~/workspace                        # README.md가 있는 과제 루트
 bash ~/kit/scripts/bootstrap.sh       # 템플릿만 (스택 미정일 때)
 bash ~/kit/scripts/bootstrap.sh python   # 스택 정해지면 다시 실행 → 스캐폴드만 추가됨
 bash ~/kit/scripts/bootstrap.sh node
+cat docs/prompts/PLAYBOOK.md          # 이후 순서는 이 파일대로
 ```
 
 - 이미 있는 파일(과제 README 등)은 **절대 덮어쓰지 않습니다.** 없는 파일만 채웁니다.
 - 두 번 실행해도 안전합니다. 첫 실행은 템플릿, 두 번째는 스캐폴드.
-- 끝나면 `git log`에 첫 커밋이 생기고 다음 순서가 출력됩니다.
+- kit을 과제 루트 **안에** clone했으면 복사 후 kit 폴더를 지웁니다(제출물에 안 섞이게). CHECKLIST를 계속 보려면 `~/kit`에 받으세요.
+
+### 스택 선택 규칙
+| env-check 결과 | 선택 |
+|---|---|
+| 기본 | `python` 또는 `node` 스캐폴드. 2분 안에 T1 끝 |
+| java ≥17 **그리고** mvn/gradle **그리고** Maven Central OK **그리고** Java가 확실히 더 능숙 | Spring Boot 가능. 단 프론트는 `static/`에서 서빙, 별도 프론트 서버·빌드 도구 없음 |
+| 셋 중 하나라도 없음 | Spring 불가. 고민하지 말고 python/node |
+
+React·Vite 등 빌드 체인은 어느 경우에도 권하지 않습니다. 서버 2개 + 프록시 + 빌드 = 30~40분과 장애 지점만 늘고, 점수는 안 늡니다. 화면은 백엔드가 서빙하는 HTML/JS 한 장으로.
 
 ---
 
@@ -39,7 +54,7 @@ bash ~/kit/scripts/bootstrap.sh node
 
 | 구간 | 할 일 | 쓰는 것 |
 |---|---|---|
-| 0–5분 | clone → bootstrap → 첫 커밋 | `scripts/bootstrap.sh` |
+| 0–5분 | clone → bootstrap → 첫 커밋 → `cat docs/prompts/PLAYBOOK.md` | `scripts/bootstrap.sh`, `PLAYBOOK.md` |
 | 5–20분 | README 정독 → 담당자 인터뷰 → 합의문 확인받기 | `docs/INTERVIEW.md` |
 | 20–35분 | `codex` 실행 → 첫 메시지 → `$plan-draft` → 초안을 **내 판단으로** 수정 → 스택 결정 → `bootstrap.sh python\|node` | `prompts/kickoff.md`, `docs/PLAN.md`, `docs/DECISIONS.md` D1 |
 | 35–120분 | 작업마다: 위임 프롬프트 → Codex 작업 → `check.sh` → 브라우저 확인 → "커밋" | `prompts/task.md`, `scripts/check.sh`, `docs/TRACEABILITY.md` |
@@ -77,12 +92,15 @@ Codex가 세션 시작 시 자동으로 읽습니다. 따로 할 일 없음. 다
 | `HANDOFF.md` | `$handoff` → 내가 다듬기 | 실행법·완료·미완·이슈·다음 할 일·AI 활용 요약. "완벽/모든/항상" 금지 |
 
 ### `prompts/`
-- `kickoff.md`: Codex 첫 메시지(규칙 확인 + 환경 요약, 코드 금지) → 두 번째 메시지 `$plan-draft`
-- `task.md`: 작업 위임 틀. **목표·완료 조건(실패 케이스 포함)·제약·검증** 네 칸이 비면 보내지 않기. 하단에 리뷰 반영 틀과 대기 중 할 일 목록
+- `PLAYBOOK.md` ★: 0~8단계 전체 순서와 **그대로 복사할 프롬프트** 전부 (시작·계획·스캐폴드·작업 루프·리뷰·마무리·서술형). `docs/prompts/`로 복사되므로 `cat docs/prompts/PLAYBOOK.md`로 보면서 진행
+- `kickoff.md`, `task.md`: PLAYBOOK의 2단계·5단계만 따로 뗀 것
+
+### `scripts/env-check.sh`
+사전 체험 첫 1분. python/node/java/mvn/gradle/codex 버전, GitHub·PyPI·npm·Maven Central 접근(HTTP 코드), 캐시, CPU/RAM을 출력하고 스택 판단 기준을 알려줍니다.
 
 ### `scripts/check.sh`
 ```bash
-bash scripts/check.sh              # 테스트만 (pytest 또는 npm test 자동 감지)
+bash scripts/check.sh              # 테스트만 (pytest / npm test / mvn test / gradle test 자동 감지)
 PORT=8000 bash scripts/check.sh    # + 떠 있는 서버의 /health
 ```
 `ALL OK` / `FAILED`로 끝나고 종료 코드 0/1. Codex도 같은 명령을 씁니다.

@@ -20,6 +20,16 @@ if [ -n "$PY" ] && { ls tests/test_*.py >/dev/null 2>&1 || ls test_*.py >/dev/nu
   ran=1
 fi
 
+if [ -f pom.xml ]; then
+  echo "== mvn test"
+  mvn -q test || status=1
+  ran=1
+elif [ -f build.gradle ] || [ -f build.gradle.kts ]; then
+  echo "== gradle test"
+  if [ -x ./gradlew ]; then ./gradlew -q test || status=1; else gradle -q test || status=1; fi
+  ran=1
+fi
+
 if [ -n "${PORT:-}" ]; then
   echo "== health check :$PORT"
   if curl -fsS --max-time 5 "http://127.0.0.1:$PORT/health" >/dev/null; then

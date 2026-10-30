@@ -45,7 +45,9 @@ Codex 응답을 기다리는 동안: DECISIONS 한 줄, TRACEABILITY 갱신, 다
 - 후속 서술형에서 AI·복사·붙여넣기
 
 ## 사전 체험 15분에 확인할 것 (1회뿐)
-1. `git clone` 되는가 (GitHub 허용 여부)
+1. `git clone https://github.com/<아이디>/kit.git ~/kit` 되는가 → 바로 `bash ~/kit/scripts/env-check.sh`
+   - Spring은 java≥17 + mvn/gradle + Maven Central OK **셋 다** 있을 때만. 아니면 python/node로 확정
+   - React/Vite 빌드 체인은 안 함. 프론트는 백엔드 static 한 장
 2. `codex` → `/status` `/model` → `$` 입력 시 스킬 목록에 plan-draft 뜨는가
 3. 짧은 요청 1개 → 승인 방식 확인 (허용 범위 명령은 자동 실행)
 4. 스캐폴드 서버 띄우고 Browser 탭 PORT 입력 → 화면 뜨는가
