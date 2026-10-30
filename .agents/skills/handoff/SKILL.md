@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: 현재 코드, git log, 테스트 결과를 근거로 docs/HANDOFF.md를 작성·갱신하고 README의 실행 방법이 실제와 맞는지 검증한다. 제출 약 30분 전에 사용한다.
+description: 현재 코드, git log, 테스트 결과를 근거로 docs/HANDOFF.md를 작성·갱신하고 README의 실행 방법이 실제와 맞는지 검증한다. 마무리 단계에서 사용한다.
 ---
 
 # handoff

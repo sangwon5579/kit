@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 과제 작업 루트에서 실행한다. 키트의 작업 규칙·문서 템플릿·스킬·점검 스크립트를 복사하고 첫 커밋을 만든다.
+# 작업 루트(과제 README.md가 있는 곳)에서 실행한다. 키트의 작업 규칙·문서 템플릿·스킬·점검 스크립트를 복사하고 첫 커밋을 만든다.
 #
 # 사용 (과제 루트, 예: ~/workspace 에서):
 #   bash ~/kit/scripts/bootstrap.sh            # 템플릿만
@@ -42,7 +42,8 @@ copy_missing "$KIT/.agents/skills" ./.agents/skills
 copy_missing "$KIT/docs" ./docs
 copy_missing "$KIT/prompts" ./docs/prompts
 [ -e scripts/check.sh ] || cp "$KIT/scripts/check.sh" ./scripts/check.sh
-chmod +x scripts/check.sh
+[ -e scripts/peek.sh ]  || cp "$KIT/scripts/peek.sh"  ./scripts/peek.sh
+chmod +x scripts/check.sh scripts/peek.sh
 
 case "$SCAFFOLD" in
   python) copy_missing "$KIT/scaffold/python-fastapi" . ; echo "FastAPI 스캐폴드 복사" ;;
@@ -63,12 +64,12 @@ git add -A
 case "$SCAFFOLD" in
   python) MSG="chore: FastAPI 스캐폴드 추가 (개인 공개 키트 kit에서 복사: /health, 0.0.0.0+PORT, 테스트 4개)" ;;
   node)   MSG="chore: Node http 스캐폴드 추가 (개인 공개 키트 kit에서 복사: /health, 0.0.0.0+PORT, 테스트 4개)" ;;
-  *)      MSG="chore: 작업 템플릿 추가 (개인 공개 키트 kit에서 복사: AGENTS.md, docs/, scripts/, .agents/skills)" ;;
+  *)      MSG="chore: 작업 템플릿 추가 (개인 공개 키트 kit에서 복사: AGENTS.md, docs/, scripts/check.sh·peek.sh, .agents/skills)" ;;
 esac
 git commit -q -m "$MSG" && echo "커밋 완료: $MSG" || echo "커밋할 변경 없음"
 
 echo
 echo "완료. 다음 순서:"
-echo "  1) docs/INTERVIEW.md 열고 업무 담당자 인터뷰 → 합의문 확인"
+echo "  1) docs/INTERVIEW.md 열고 요청자 인터뷰(있으면) → 합의문 확인"
 echo "  2) 터미널에서 codex 실행 → docs/prompts/kickoff.md 첫 메시지 → \$plan-draft"
 echo "  3) 작업마다 docs/prompts/task.md 틀 → bash scripts/check.sh → 커밋"

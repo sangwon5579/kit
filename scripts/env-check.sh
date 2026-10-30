@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 사전 체험 첫 1분에 실행. 어떤 스택이 가능한지 한 번에 확인한다.
+# 새 환경에서 가장 먼저 실행. 어떤 스택이 가능한지 한 번에 확인한다.
 # 사용: bash ~/kit/scripts/env-check.sh
 set -uo pipefail
 
